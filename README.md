@@ -49,7 +49,7 @@ public function add(){
 Add following code in the validationDefault function:
 
 $validator
-		->add('event_doc','ExtNotAllowed',[
+	->add('event_doc','ExtNotAllowed',[
 			'rule'=> function($value, $context){
 				if(isset($value['_error']) && $value['_error'] == 'ExtNotAllowed'){
 					return false;
