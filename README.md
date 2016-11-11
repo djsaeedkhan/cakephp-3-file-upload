@@ -26,7 +26,7 @@ public function add(){
 						$this->request->data['event_doc'] = ['_error'=>'FileNotUpload'];
 					}					
 				} else {
-					$this->request->data['event_doc'] = $this->Fileupload->data('file_name');
+					$this->request->data['event_doc'] = $this->Fileupload->output('file_name');
 				}
 			} else {
 				unset($this->request->data['event_doc']);
