@@ -317,10 +317,6 @@ class FileuploadComponent extends Component {
 						$this->$key = $config[$key];
 					}
 				}
-				else
-				{
-					$this->$key = $defaults[$key];
-				}
 			}
 		}
 		else
@@ -578,7 +574,7 @@ class FileuploadComponent extends Component {
 	 * @param	string	$index
 	 * @return	mixed
 	 */
-	public function data($index = NULL)
+	public function output($index = NULL)
 	{
 		$data = array(
 				'file_name'		=> $this->file_name,
