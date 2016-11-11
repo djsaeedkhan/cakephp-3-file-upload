@@ -11,37 +11,37 @@ Add similar logic to the the "action" of your form in your controller.
 
 public function add(){
 
-    	$event = $this->Events->newEntity();	
-	if ($this->request->is('post')) {	
-		if(!empty($this->request->data['event_doc']['name'])) {		
-			$fuConfig['upload_path']    = WWW_ROOT . 'uploads/event/';			
-			$fuConfig['allowed_types']  = 'pdf';			
-			$fuConfig['max_size']       = 0;			
-			$this->Fileupload->init($fuConfig);				
-			if (!$this->Fileupload->upload('event_doc')){
-				$fError = $this->Fileupload->errors();
-				if($fError[0] == 'upload_invalid_filetype'){
-					$this->request->data['event_doc'] = ['_error'=>'ExtNotAllowed'];
+    		$event = $this->Events->newEntity();	
+		if ($this->request->is('post')) {	
+			if(!empty($this->request->data['event_doc']['name'])) {		
+				$fuConfig['upload_path']    = WWW_ROOT . 'uploads/event/';			
+				$fuConfig['allowed_types']  = 'pdf';			
+				$fuConfig['max_size']       = 0;			
+				$this->Fileupload->init($fuConfig);				
+				if (!$this->Fileupload->upload('event_doc')){
+					$fError = $this->Fileupload->errors();
+					if($fError[0] == 'upload_invalid_filetype'){
+						$this->request->data['event_doc'] = ['_error'=>'ExtNotAllowed'];
+					} else {
+						$this->request->data['event_doc'] = ['_error'=>'FileNotUpload'];
+					}					
 				} else {
-					$this->request->data['event_doc'] = ['_error'=>'FileNotUpload'];
-				}					
+					$this->request->data['event_doc'] = $this->Fileupload->data('file_name');
+				}
 			} else {
-				$this->request->data['event_doc'] = $this->Fileupload->data('file_name');
+				unset($this->request->data['event_doc']);
 			}
-		} else {
-			unset($this->request->data['event_doc']);
+			$this->request->data = $this->Sanitize->clean($this->request->data);
+			$event = $this->Events->patchEntity($event, $this->request->data);
+			if ($this->Events->save($event)) {
+				$this->Flash->success(__('The event has been saved.'));
+				return $this->redirect(['action' => 'index']);
+			} else {
+				$this->Flash->error(__('The event could not be saved. Please, try again.'));
+			}
 		}
-		$this->request->data = $this->Sanitize->clean($this->request->data);
-		$event = $this->Events->patchEntity($event, $this->request->data);
-		if ($this->Events->save($event)) {
-			$this->Flash->success(__('The event has been saved.'));
-			return $this->redirect(['action' => 'index']);
-		} else {
-			$this->Flash->error(__('The event could not be saved. Please, try again.'));
-		}
-	}
-	$this->set(compact('event'));
-	$this->set('_serialize', ['event']);
+		$this->set(compact('event'));
+		$this->set('_serialize', ['event']);
 }
 
 # In Model\Table\EventsTable.php
@@ -50,25 +50,25 @@ add similar logic in the validationDefault function.
 
 public function validationDefault(Validator $validator) {
 
-	$validator->add('event_doc','ExtNotAllowed',[
-		'rule'=> function($value, $context){		
-			if(isset($value['_error']) && $value['_error'] == 'ExtNotAllowed'){
-				return false;
-			} 
-			return true;			
-		},
-		'message'=>'Please select valid file type',
-	])
-	->add('event_doc','FileNotUpload',[
-		'rule'=> function($value, $context){		
-			if(isset($value['_error']) && $value['_error'] == 'FileNotUpload'){
-				return false;
-			} 
-			return true;			
-		},
-		'message'=>'File not upload,try again',
-	])
-	->allowEmpty('event_doc');
+		$validator->add('event_doc','ExtNotAllowed',[
+			'rule'=> function($value, $context){		
+				if(isset($value['_error']) && $value['_error'] == 'ExtNotAllowed'){
+					return false;
+				} 
+				return true;			
+			},
+			'message'=>'Please select valid file type',
+		])
+		->add('event_doc','FileNotUpload',[
+			'rule'=> function($value, $context){		
+				if(isset($value['_error']) && $value['_error'] == 'FileNotUpload'){
+					return false;
+				} 
+				return true;			
+			},
+			'message'=>'File not upload,try again',
+		])
+		->allowEmpty('event_doc');
 }
 
 # Preferences
