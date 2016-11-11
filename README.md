@@ -46,29 +46,32 @@ public function add(){
 
 # In Model\Table\EventsTable.php
 
-Add following code in the validationDefault function:
+add similar logic in the validationDefault function:
+
+public function validationDefault(Validator $validator) {
 
 $validator
 	->add('event_doc','ExtNotAllowed',[
-			'rule'=> function($value, $context){
-				if(isset($value['_error']) && $value['_error'] == 'ExtNotAllowed'){
-					return false;
-				} 
-				return true;
-			},
-			'message'=>'Please select valid file type',
-		])
-		->add('event_doc','FileNotUpload',[
-			'rule'=> function($value, $context){
-				if(isset($value['_error']) && $value['_error'] == 'FileNotUpload'){
-					return false;
-				} 
-				return true;
-			},
-			'message'=>'File not upload,try again',
-		])
-		->allowEmpty('event_doc');
-		
+		'rule'=> function($value, $context){
+			if(isset($value['_error']) && $value['_error'] == 'ExtNotAllowed'){
+				return false;
+			} 
+			return true;
+		},
+		'message'=>'Please select valid file type',
+	])
+	->add('event_doc','FileNotUpload',[
+		'rule'=> function($value, $context){
+			if(isset($value['_error']) && $value['_error'] == 'FileNotUpload'){
+				return false;
+			} 
+			return true;
+		},
+		'message'=>'File not upload,try again',
+	])
+	->allowEmpty('event_doc');
+}
+
 # Preferences
 
 The following preferences are available. The default value indicates what will be used if you do not specify that preference.
