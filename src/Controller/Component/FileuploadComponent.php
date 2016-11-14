@@ -244,15 +244,6 @@ class FileuploadComponent extends Component {
 	// --------------------------------------------------------------------
 
 	/**
-	* Default config
-	*
-	* These are merged with user-provided config when the component is used.
-	*
-	* @var array
-	*/
-	protected $_defaultConfig = [];
-	
-	/**
 	 * Constructor
 	 *
 	 * @param	array	$config
@@ -266,9 +257,6 @@ class FileuploadComponent extends Component {
 		$dConfig = Configure::read('default');
 		//Check config var type
 		if(!is_array($dConfig)){ $dConfig = array(); }
-		if(!is_array($config)){ $config = array(); }
-		//Merge config and default config
-		$dConfig = array_merge($dConfig,$config);
 		
 		//call init
 		empty($dConfig) OR $this->init($dConfig, FALSE);
@@ -287,15 +275,14 @@ class FileuploadComponent extends Component {
 	/**
 	 * init preferences
 	 *
-	 * @param	array	$config
+	 * @param	array	$sConfig
 	 * @param	bool	$reset
 	 * @return	FileuploadComponent
 	 */
 	 
-	public function init(array $config = array(), $reset = TRUE)
+	public function init($sConfig = array(), $reset = TRUE)
 	{
 		$reflection = new \ReflectionClass($this);
-
 		if ($reset === TRUE)
 		{
 			$defaults = $reflection->getDefaultProperties();
@@ -306,22 +293,22 @@ class FileuploadComponent extends Component {
 					continue;
 				}
 
-				if (isset($config[$key]))
+				if (isset($sConfig[$key]))
 				{
 					if ($reflection->hasMethod('set_'.$key))
 					{
-						$this->{'set_'.$key}($config[$key]);
+						$this->{'set_'.$key}($sConfig[$key]);
 					}
 					else
 					{
-						$this->$key = $config[$key];
+						$this->$key = $sConfig[$key];
 					}
 				}
 			}
 		}
 		else
 		{
-			foreach ($config as $key => &$value)
+			foreach ($sConfig as $key => &$value)
 			{
 				if ($key[0] !== '_' && $reflection->hasProperty($key))
 				{
@@ -340,6 +327,7 @@ class FileuploadComponent extends Component {
 		// if a file_name was provided in the config, use it instead of the user input
 		// supplied file name for all uploads until initialized again
 		$this->_file_name_override = $this->file_name;
+		
 		return $this;
 	}
 
@@ -566,7 +554,7 @@ class FileuploadComponent extends Component {
 	// --------------------------------------------------------------------
 
 	/**
-	 * Finalized Data Array
+	 * Finalized filedata Array
 	 *
 	 * Returns an associative array containing all of the information
 	 * related to the upload, allowing the developer easy access in one array.
@@ -576,7 +564,7 @@ class FileuploadComponent extends Component {
 	 */
 	public function output($index = NULL)
 	{
-		$data = array(
+		$filedata = array(
 				'file_name'		=> $this->file_name,
 				'file_type'		=> $this->file_type,
 				'file_path'		=> $this->upload_path,
@@ -595,10 +583,10 @@ class FileuploadComponent extends Component {
 
 		if ( ! empty($index))
 		{
-			return isset($data[$index]) ? $data[$index] : NULL;
+			return isset($filedata[$index]) ? $filedata[$index] : NULL;
 		}
 
-		return $data;
+		return $filedata;
 	}
 
 	// --------------------------------------------------------------------
@@ -1101,12 +1089,12 @@ class FileuploadComponent extends Component {
 			return ! preg_match('/<(a|body|head|html|img|plaintext|pre|script|table|title)[\s>]/i', $opening_bytes);
 		}
 
-		if (($data = @file_get_contents($file)) === FALSE)
+		if (($fgc_data = @file_get_contents($file)) === FALSE)
 		{
 			return FALSE;
 		}
 
-		return $data;
+		return $fgc_data;
 	}
 
 	// --------------------------------------------------------------------
@@ -1326,7 +1314,7 @@ class FileuploadComponent extends Component {
 	function is_really_writable($file)
 	{
 		// If we're on a Unix server with safe_mode off we call is_writable
-		if (DIRECTORY_SEPARATOR === '/' && (is_php('5.4') OR ! ini_get('safe_mode')))
+		if (DIRECTORY_SEPARATOR === '/' && ($this->is_php('5.4') OR ! ini_get('safe_mode')))
 		{
 			return is_writable($file);
 		}
@@ -1428,5 +1416,18 @@ class FileuploadComponent extends Component {
 		while ($count);
 
 		return $str;
+	}
+	
+	function is_php($version)
+	{
+		static $_is_php;
+		$version = (string) $version;
+
+		if ( ! isset($_is_php[$version]))
+		{
+			$_is_php[$version] = version_compare(PHP_VERSION, $version, '>=');
+		}
+
+		return $_is_php[$version];
 	}
 }
