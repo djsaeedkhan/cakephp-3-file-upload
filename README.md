@@ -1,4 +1,4 @@
-# cakephp-3-fileupload
+# cakephp-3-file-upload
 CakePHP 3 File Upload Component
 
 # In Controller
