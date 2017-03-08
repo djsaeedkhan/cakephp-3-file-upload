@@ -282,6 +282,8 @@ class FileuploadComponent extends Component {
 	 
 	public function init($sConfig = array(), $reset = TRUE)
 	{
+		$this->_file_name_override = '';
+		
 		$reflection = new \ReflectionClass($this);
 		if ($reset === TRUE)
 		{
@@ -326,8 +328,8 @@ class FileuploadComponent extends Component {
 
 		// if a file_name was provided in the config, use it instead of the user input
 		// supplied file name for all uploads until initialized again
-		//$this->_file_name_override = $this->file_name;
-		$this->_file_name_override = '';
+		$this->_file_name_override = $this->file_name;
+		//$this->_file_name_override = '';
 		
 		return $this;
 	}
